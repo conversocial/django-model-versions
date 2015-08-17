@@ -11,12 +11,13 @@ class VersionedModel(models.Model):
     _version = models.IntegerField(null=False, blank=True)
 
     def save_base_with_version(self,
-            raw=False, cls=None, origin=None, force_insert=False, 
+            raw=False, force_insert=False, 
             force_update=False, using=None, update_fields=None):
 
         using = using or router.db_for_write(self.__class__, instance=self)
         assert not (force_insert and (force_update or update_fields))
         assert update_fields is None or len(update_fields) > 0
+        cls = origin = self.__class__
         if cls is None:
             cls = self.__class__
             meta = cls._meta
@@ -107,17 +108,17 @@ class VersionedModel(models.Model):
             signals.post_save.send(sender=origin, instance=self, created=(not record_exists),
                                    update_fields=update_fields, raw=raw, using=using)
 
-    def save_base(self, raw=False, cls=None, origin=None, force_insert=False, 
+    def save_base(self, raw=False, force_insert=False, 
                   force_update=False, using=None, update_fields=None):
         '''If this model already exists then this performs an update to ensure
         that the model has not already been updated.'''
         if self._version:
-            return self.save_base_with_version(raw, cls, origin, force_insert,
+            return self.save_base_with_version(raw, force_insert,
                     force_update, using, update_fields)
         else:
             self._version = 1
             return super(VersionedModel, self).save_base(
-                raw=raw, cls=cls, origin=origin, force_insert=force_insert, 
+                raw=raw, force_insert=force_insert, 
                 force_update=force_update, using=using, update_fields=update_fields)
     save_base.alters_data = True
 
