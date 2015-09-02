@@ -3,6 +3,7 @@ import optparse
 import os
 import sys
 
+import django
 from django.conf import settings
 from django.core.management import call_command
 
@@ -17,6 +18,7 @@ def setup_test_environment():
         },
         "INSTALLED_APPS": ("modelversions", ),
     })
+    django.setup()
 
 
 def main():

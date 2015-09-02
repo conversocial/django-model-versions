@@ -1,3 +1,5 @@
+from collections import deque
+
 from django.test import TestCase
 from django.conf import settings
 from django.db import models, connection
@@ -21,7 +23,7 @@ class TestVersionedModel(TestCase):
     def setUp(self):
         self.old_debug = settings.DEBUG
         settings.DEBUG = True
-        connection.queries = []
+        connection.queries_log = deque(maxlen=9999)
 
     def tearDown(self):
         settings.DEBUG = self.old_debug
